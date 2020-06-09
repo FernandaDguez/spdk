@@ -1,0 +1,6 @@
+steps:
+- id: generate spdk
+  uses: './scripts/perf/docker/'
+  runs: ["sh", "-c", "./scripts/gen_nvme.sh > fio.spdk_bdev_conf"]
+
+
