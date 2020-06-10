@@ -1,4 +1,12 @@
 steps:
 - id: generate spdk config
   uses: './scripts/perf/docker/'
-  runs: ["sh", "-c", "./scripts/gen_nvme.sh > fio.spdk_bdev_conf"]
+  runs: ["sh", "-c", "scripts/gen_nvme.sh > scripts/workflows/fio.spdk_bdev_conf"]
+
+- id: precondition ssd
+  uses: './scripts/perf/docker'
+  runs: ["sh", "-c", "./perf -q 32 -s 131072 -w write -t 1200"]
+
+- id: run first spdk test
+  uses: './scripts/perf/docker/' 
+  runs: ["sh", "-c", "test/ftl/bdevperf.sh"]
