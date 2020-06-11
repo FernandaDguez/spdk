@@ -3,10 +3,18 @@ steps:
   uses: './scripts/perf/docker/'
   runs: ["sh", "-c", "scripts/gen_nvme.sh > scripts/workflows/fio.spdk_bdev_conf"]
 
-- id: precondition ssd
-  uses: './scripts/perf/docker'
-  runs: ["sh", "-c", "./perf -q 32 -s 131072 -w write -t 1200"]
+- id: test 3 spdk engine rand read
+  uses: './scripts/perf/docker/'
+  runs: ["sh", "-c", "fio --rw=randread lat_test_spdk_config.fio"]
 
-- id: run first spdk test
+- id: test 3 linux engine rand read
   uses: './scripts/perf/docker/' 
-  runs: ["sh", "-c", "test/ftl/bdevperf.sh"]
+  runs: ["sh", "-c", "fio --rw=randread lat_test_linux_conf.fio"]
+
+- id: test 3 spdk engine rand write
+  uses: './scripts/perf/docker/'
+  runs: ["sh", "-c", "fio --rw=randwrite lat_test_spdk_config.fio"]
+
+- id: test 3 linux engine rand write
+  uses: './scripts/perf/docker/' 
+  runs: ["sh", "-c", "fio --rw=randwrite lat_test_linux_conf.fio"]
