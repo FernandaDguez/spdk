@@ -8,6 +8,7 @@ RUN apt-get update \
      nvme-cli \
 	fio \
 	build-essential \
+	libaio-dev \
 && git clone \
 	--recursive \
 	--depth 1 \
