@@ -1,12 +1,12 @@
+options:
+  env:
+    SSD: /dev/nvme0n1/nvme0n1
+    
 steps:
-- id: generate spdk config
+- id: enable hugepages
   uses: './scripts/perf/docker/'
-  runs: ["sh", "-c", "scripts/gen_nvme.sh > scripts/workflows/fio.spdk_bdev_conf"]
-  
-- id: test 3 linux engine rand read
-  uses: './scripts/perf/docker/'
-  runs: ["sh", "-c", "RW=randread MIX=100 fio scripts/workflows/lat_test_linux_conf.fio"]
+  runs: ["sh", "-c", "cd /root/ && echo 45424 > /proc/sys/vm/nr_hugepages && sysctl -w vm.nr_hugepages=45424"]
 
-- id: test 3 linux engine rand write
-  uses: './scripts/perf/docker/' 
-  runs: ["sh", "-c", "RW=randwrite MIX=0 fio scripts/workflows/lat_test_linux_conf.fio"]
+- id: format ssd
+  uses: './scripts/perf/docker/'
+  runs: ["sh", "-c", "nvme format /dev/nvme0 --ses=2 -n=1"]

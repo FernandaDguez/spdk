@@ -4,17 +4,22 @@ WORKDIR /root
 
 RUN apt-get update \
 && apt-get install -y \
-	git \
-     nvme-cli \
-	fio \
-	build-essential \
-	libaio-dev \
+        apt-utils \
+        sudo \
+        git \
+        nvme-cli \
+        fio \
+        build-essential \
+        libaio-dev \
+        pciutils \
+        kmod \
+        procps \
 && git clone \
-	--recursive \
-	--depth 1 \
- 	--shallow-submodules \
- 	--branch v20.04.1 \
- 	https://github.com/spdk/spdk \
+        --recursive \
+        --depth 1 \
+        --shallow-submodules \
+        --branch v20.04.1 \
+        https://github.com/spdk/spdk \
 && /root/spdk/scripts/pkgdep.sh \
 && cd /root/spdk \
 && ./configure \
