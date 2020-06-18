@@ -1,12 +1,20 @@
-options:
-  env:
-    SSD: /dev/nvme0n1/nvme0n1
-    
 steps:
-- id: enable hugepages
-  uses: './scripts/perf/docker/'
-  runs: ["sh", "-c", "cd /root/ && echo 45424 > /proc/sys/vm/nr_hugepages && sysctl -w vm.nr_hugepages=45424"]
-
-- id: format ssd
-  uses: './scripts/perf/docker/'
-  runs: ["sh", "-c", "nvme format /dev/nvme0 --ses=2 -n=1"]
+  - id: purge
+    uses: './scripts/perf/docker'
+    runs: ['sh', '-c']
+    args: ['nvme format /dev/nvme0 --ses=2 -n=1']
+  
+  - id: generate spdk fio config file
+    uses: './scripts/perf/docker'
+    runs: ['sh', '-c']
+    args: ['scripts/gen_nvme.sh > fio.spdk_bdev_conf']
+  
+  - id: enable hugepages
+    uses: './scripts/perf/docker'
+    runs: ['sh', '-c']
+    args: ['cd /root/', 'echo 45424 > /proc/sys/vm/nr_hugepages', 'sysctl -w vm.nr_hugepages=45424']
+  
+  - id: precondition
+    uses: './scripts/perf/docker'
+    runs: ['sh', '-c']
+    args: ['fio scripts/workflows/precondition.fio']
