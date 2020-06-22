@@ -4,17 +4,47 @@ steps:
     runs: ['sh', '-c']
     args: ['nvme format /dev/nvme0 --ses=2 -n=1']
   
-  - id: generate spdk fio config file
+  - id: enable_hugepages
     uses: './scripts/perf/docker'
     runs: ['sh', '-c']
-    args: ['scripts/gen_nvme.sh > fio.spdk_bdev_conf']
+    args: ['cd /root/', 'echo 512 > /proc/sys/vm/nr_hugepages', 'sysctl -w vm.nr_hugepages=512']
   
-  - id: enable hugepages
+  - id: read_test_precondition
     uses: './scripts/perf/docker'
     runs: ['sh', '-c']
-    args: ['cd /root/', 'echo 45424 > /proc/sys/vm/nr_hugepages', 'sysctl -w vm.nr_hugepages=45424']
+    args: ['RW=read IOD=256 fio scripts/workflows/precondition.fio']
   
-  - id: precondition
+  - id: bdev_4k_random_read_test
     uses: './scripts/perf/docker'
     runs: ['sh', '-c']
-    args: ['fio scripts/workflows/precondition.fio']
+    args: ['LD_PRELOAD=/root/spdk/examples/bdev/fio_plugin/fio_plugin RW=randread IOD=256 MIX=100 fio scripts/workflows/spdk_jobfile.fio --output=scripts/workflows/results/bdev_read.json --output-format=json']
+  
+  - id: libaio_4k_random_read_test
+    uses: './scripts/perf/docker'
+    runs: ['sh', '-c']
+    args: ['RW=randread IOD=256 MIX=100 fio scripts/workflows/libaio_jobfile.fio --output=scripts/workflows/results/libaio_read.json --output-format=json']
+  
+  - id: write_test_precondition
+    uses: './scripts/perf/docker'
+    runs: ['sh', '-c']
+    args: ['RW=write IOD=128 fio scripts/workflows/precondition.fio']
+
+    - id: bdev_4k_random_write_test
+    uses: './scripts/perf/docker'
+    runs: ['sh', '-c']
+    args: ['LD_PRELOAD=/root/spdk/examples/bdev/fio_plugin/fio_plugin RW=randwrite IOD=32 MIX=0 fio scripts/workflows/spdk_jobfile.fio --output=scripts/workflows/results/bdev_write.json --output-format=json']
+  
+  - id: libaio_4k_random_write_test
+    uses: './scripts/perf/docker'
+    runs: ['sh', '-c']
+    args: ['RW=randwrite IOD=32 MIX=0 fio scripts/workflows/libaio_jobfile.fio --output=scripts/workflows/results/libaio_read.json --output-format=json']
+  
+  - id: bdev_4k_mix_workload_test
+    uses: './scripts/perf/docker'
+    runs: ['sh', '-c']
+    args: ['LD_PRELOAD=/root/spdk/examples/bdev/fio_plugin/fio_plugin RW=randread IOD=256 MIX=70 fio scripts/workflows/spdk_jobfile.fio --output=scripts/workflows/results/bdev_mix.json --output-format=json']
+  
+  - id: libaio_4k_mix_workload_test
+    uses: './scripts/perf/docker'
+    runs: ['sh', '-c']
+    args: ['RW=randread IOD=256 MIX=70 fio scripts/workflows/libaio_jobfile.fio --output=scripts/workflows/results/libaio_mix.json --output-format=json']

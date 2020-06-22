@@ -1,9 +1,0 @@
-[nvme0]
-ioengine=libaio
-rw=write
-iodepth=128
-size=128K
-filename=/dev/nvme0n1/nvme0n1
-runtime=12000
-time_based
-steadystate=iops_slope:0.01%

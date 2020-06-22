@@ -2,4 +2,5 @@ engine:
     name: docker
     options:
         privileged: True
-        volumes: [/dev:/dev/nvme0n1]
+        volumes:
+        - /dev:/dev/nvme0n1

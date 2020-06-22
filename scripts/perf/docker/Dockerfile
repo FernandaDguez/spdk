@@ -14,6 +14,12 @@ RUN apt-get update \
         pciutils \
         kmod \
         procps \
+        vim \
+&& git clone https://github.com/axboe/fio \
+&& cd fio \
+&& make \
+&& make install \
+&& cd /root \
 && git clone \
         --recursive \
         --depth 1 \
@@ -22,7 +28,7 @@ RUN apt-get update \
         https://github.com/spdk/spdk \
 && /root/spdk/scripts/pkgdep.sh \
 && cd /root/spdk \
-&& ./configure \
+&& ./configure --with-fio=/root/fio \
 && make \
 && apt-get clean \
 && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
