@@ -1,50 +1,76 @@
-steps:
-  - id: purge
-    uses: './scripts/perf/docker'
-    runs: ['sh', '-c']
-    args: ['nvme format /dev/nvme0 --ses=2 -n=1']
-  
-  - id: enable_hugepages
-    uses: './scripts/perf/docker'
-    runs: ['sh', '-c']
-    args: ['cd /root/', 'echo 512 > /proc/sys/vm/nr_hugepages', 'sysctl -w vm.nr_hugepages=512']
-  
-  - id: read_test_precondition
-    uses: './scripts/perf/docker'
-    runs: ['sh', '-c']
-    args: ['RW=read IOD=256 fio scripts/workflows/precondition.fio']
-  
-  - id: bdev_4k_random_read_test
-    uses: './scripts/perf/docker'
-    runs: ['sh', '-c']
-    args: ['LD_PRELOAD=/root/spdk/examples/bdev/fio_plugin/fio_plugin RW=randread IOD=256 MIX=100 fio scripts/workflows/spdk_jobfile.fio --output=scripts/workflows/results/bdev_read.json --output-format=json']
-  
-  - id: libaio_4k_random_read_test
-    uses: './scripts/perf/docker'
-    runs: ['sh', '-c']
-    args: ['RW=randread IOD=256 MIX=100 fio scripts/workflows/libaio_jobfile.fio --output=scripts/workflows/results/libaio_read.json --output-format=json']
-  
-  - id: write_test_precondition
-    uses: './scripts/perf/docker'
-    runs: ['sh', '-c']
-    args: ['RW=write IOD=128 fio scripts/workflows/precondition.fio']
+options:
+  env:
+    LD_PRELOAD: /root/spdk/examples/bdev/fio_plugin/fio_plugin
 
-    - id: bdev_4k_random_write_test
-    uses: './scripts/perf/docker'
-    runs: ['sh', '-c']
-    args: ['LD_PRELOAD=/root/spdk/examples/bdev/fio_plugin/fio_plugin RW=randwrite IOD=32 MIX=0 fio scripts/workflows/spdk_jobfile.fio --output=scripts/workflows/results/bdev_write.json --output-format=json']
-  
-  - id: libaio_4k_random_write_test
-    uses: './scripts/perf/docker'
-    runs: ['sh', '-c']
-    args: ['RW=randwrite IOD=32 MIX=0 fio scripts/workflows/libaio_jobfile.fio --output=scripts/workflows/results/libaio_read.json --output-format=json']
-  
-  - id: bdev_4k_mix_workload_test
-    uses: './scripts/perf/docker'
-    runs: ['sh', '-c']
-    args: ['LD_PRELOAD=/root/spdk/examples/bdev/fio_plugin/fio_plugin RW=randread IOD=256 MIX=70 fio scripts/workflows/spdk_jobfile.fio --output=scripts/workflows/results/bdev_mix.json --output-format=json']
-  
-  - id: libaio_4k_mix_workload_test
-    uses: './scripts/perf/docker'
-    runs: ['sh', '-c']
-    args: ['RW=randread IOD=256 MIX=70 fio scripts/workflows/libaio_jobfile.fio --output=scripts/workflows/results/libaio_mix.json --output-format=json']
+steps:
+- id: build-img
+  uses: docker://docker:19.03.10
+  dir: /workspace/scripts/perf/docker
+  args: [build, --tag=spdk, .]
+
+- id: prepare
+  uses: docker://spdk
+  skip_pull: true
+  runs: [bash, -ex, -c]
+  args:
+  - |
+    nvme format /dev/nvme0 --ses=2 -n=1
+    echo 512 > /proc/sys/vm/nr_hugepages
+    sysctl -w vm.nr_hugepages=512
+
+- id: run-read-benchmark
+  uses: docker://spdk
+  skip_pull: true
+  runs: [bash, -ex, -c]
+  args:
+  - |
+    export RW=read IOD=256
+    fio scripts/workflows/precondition.fio
+
+    env
+    export RW=randread IOD=256 MIX=100
+    fio \
+      --output-format=json \
+      --output=scripts/workflows/results/bdev_read.json \
+      scripts/workflows/spdk_jobfile.fio
+    fio \
+      --output-format=json \
+      --output=scripts/workflows/results/libaio_read.json \
+      scripts/workflows/libaio_jobfile.fio
+
+- id: run-write-benchmark
+  uses: docker://spdk
+  skip_pull: true
+  runs: [bash, -ex, -c]
+  args:
+  - |
+    export RW=write IOD=128
+    fio scripts/workflows/precondition.fio
+
+    env
+    export RW=randwrite IOD=32 MIX=0
+    fio \
+      --output-format=json \
+      --output=scripts/workflows/results/bdev_write.json \
+      scripts/workflows/spdk_jobfile.fio
+    fio \
+      --output-format=json \
+      --output=scripts/workflows/results/libaio_read.json \
+      scripts/workflows/libaio_jobfile.fio
+
+- id: run-mix-benchmark
+uses: docker://spdk
+skip_pull: true
+runs: [bash, -ex, -c]
+args:
+- |
+  env
+  export RW=randread IOD=256 MIX=70
+  fio \
+    --output-format=json \
+    --output=scripts/workflows/results/bdev_mix.json \
+    scripts/workflows/spdk_jobfile.fio
+  fio \
+    --output-format=json \
+    --output=scripts/workflows/results/libaio_mix.json \
+    scripts/workflows/libaio_jobfile.fio
