@@ -5,14 +5,13 @@ group_reporting=1
 direct=1
 verify=0
 time_based=1
-ramp_time=0
+ramp_time=60s
 runtime=600s
 bs=4k
 numjobs=1
-loops=3
 rw=${RW}
 iodepth=${IOD}
 rwmixread=${MIX}
 
 [test]
-filename=/dev/nvme0n1/nvme0n1
+filename=/dev/nvme0n1

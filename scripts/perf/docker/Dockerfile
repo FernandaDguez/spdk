@@ -8,15 +8,14 @@ RUN apt-get update \
         sudo \
         git \
         nvme-cli \
-        fio \
         build-essential \
         libaio-dev \
         pciutils \
         kmod \
         procps \
-        vim \
 && git clone https://github.com/axboe/fio \
 && cd fio \
+&& ./configure \
 && make \
 && make install \
 && cd /root \

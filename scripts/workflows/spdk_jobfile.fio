@@ -1,6 +1,6 @@
 [global]
 ioengine=spdk_bdev
-spdk_json_conf=scripts/workflows/bdev.json
+spdk_json_conf=/workspace/scripts/workflows/bdev.json
 thread=1
 group_reporting=1
 direct=1
@@ -8,10 +8,11 @@ verify=0
 time_based=1
 ramp_time=60s
 runtime=600s
-iodepth=256
-rw=randread
 bs=4k
 numjobs=1
-loops=3
-[job1]
-filename=Malloc0
+rw=${RW}
+iodepth=${IOD}
+rwmixread=${MIX}
+
+[test]
+filename=/dev/nvme0n1

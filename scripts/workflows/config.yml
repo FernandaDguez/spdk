@@ -3,4 +3,4 @@ engine:
     options:
         privileged: True
         volumes:
-        - /dev:/dev/nvme0n1
+        - /dev:/dev
