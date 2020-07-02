@@ -5,7 +5,7 @@
       "config": [
         {
           "params": {
-            "name": "/dev/nvme0n1",
+            "name": "DEVICE",
             "block_size": 4096,
             "num_blocks": 32
           },

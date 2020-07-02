@@ -13,6 +13,7 @@ RUN apt-get update \
         pciutils \
         kmod \
         procps \
+        jq \
 && git clone https://github.com/axboe/fio \
 && cd fio \
 && ./configure \

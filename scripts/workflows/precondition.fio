@@ -3,7 +3,7 @@ ioengine=libaio
 threads=1
 group_reporting=1
 size=5m
-filename=/dev/nvme0n1
+filename=${DEVICE}
 time_based
 ss=iops:1%
 ss_dur=30s

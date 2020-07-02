@@ -15,4 +15,4 @@ iodepth=${IOD}
 rwmixread=${MIX}
 
 [test]
-filename=/dev/nvme0n1
+filename=${DEVICE}
