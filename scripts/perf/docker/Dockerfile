@@ -10,10 +10,9 @@ RUN apt-get update \
         nvme-cli \
         build-essential \
         libaio-dev \
-        pciutils \
         kmod \
         procps \
-        jq \
+	jq \
 && git clone https://github.com/axboe/fio \
 && cd fio \
 && ./configure \

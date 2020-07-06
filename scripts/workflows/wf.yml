@@ -14,10 +14,11 @@ steps:
   runs: [bash, -ex, -c]
   args:
   - |
-    nvme format /dev/nvme0 --ses=2 -n=1
-    echo 512 > /proc/sys/vm/nr_hugepages
-    sysctl -w vm.nr_hugepages=512
+    nvme format $DEVICE --ses=2 -n=1
     chmod -R 777 ./scripts/workflows/results
+    jq \
+      '.subsystems[0]["config"][0].params.name=env.DEVICE' scripts/workflows/bdev.json >> tmp.json
+    mv tmp.json scripts/workflows/bdev.json
 
 - id: run-read-benchmark
   uses: docker://spdk
@@ -29,9 +30,6 @@ steps:
     fio scripts/workflows/precondition.fio
 
     export RW=randread IOD=256 MIX=100
-    jq \
-      '.subsystems[0]["config"][0].params.name=env.DEVICE' scripts/workflows/bdev.json >> tmp.json
-    mv tmp.json scripts/workflows/bdev.json
     LD_PRELOAD=/root/spdk/examples/bdev/fio_plugin/fio_plugin \
     fio \
       --output-format=json \
