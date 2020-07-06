@@ -15,10 +15,10 @@ steps:
   args:
   - |
     nvme format $DEVICE --ses=2 -n=1
-    chmod -R 777 ./scripts/workflows/results
+    chmod -R 777 ./scripts/perf/popper/results
     jq \
-      '.subsystems[0]["config"][0].params.name=env.DEVICE' scripts/workflows/bdev.json >> tmp.json
-    mv tmp.json scripts/workflows/bdev.json
+      '.subsystems[0]["config"][0].params.name=env.DEVICE' scripts/perf/popper/bdev.json >> tmp.json
+    mv tmp.json scripts/perf/popper/bdev.json
 
 - id: run-read-benchmark
   uses: docker://spdk
@@ -27,18 +27,18 @@ steps:
   args:
   - |
     export RW=read IOD=256
-    fio scripts/workflows/precondition.fio
+    fio scripts/perf/popper/precondition.fio
 
     export RW=randread IOD=256 MIX=100
     LD_PRELOAD=/root/spdk/examples/bdev/fio_plugin/fio_plugin \
     fio \
       --output-format=json \
-      --output=scripts/workflows/results/bdev_read.json \
-      scripts/workflows/spdk_jobfile.fio
+      --output=scripts/perf/popper/results/bdev_read.json \
+      scripts/perf/popper/spdk_jobfile.fio
     fio \
       --output-format=json \
-      --output=scripts/workflows/results/libaio_read.json \
-      scripts/workflows/libaio_jobfile.fio
+      --output=scripts/perf/popper/results/libaio_read.json \
+      scripts/perf/popper/libaio_jobfile.fio
 
 - id: run-write-benchmark
   uses: docker://spdk
@@ -47,18 +47,18 @@ steps:
   args:
   - |
     export RW=write IOD=128
-    fio scripts/workflows/precondition.fio
+    fio scripts/perf/popper/precondition.fio
 
     export RW=randwrite IOD=32 MIX=0
     LD_PRELOAD=/root/spdk/examples/bdev/fio_plugin/fio_plugin \
     fio \
       --output-format=json \
-      --output=scripts/workflows/results/bdev_write.json \
-      scripts/workflows/spdk_jobfile.fio
+      --output=scripts/perf/popper/results/bdev_write.json \
+      scripts/perf/popper/spdk_jobfile.fio
     fio \
       --output-format=json \
-      --output=scripts/workflows/results/libaio_write.json \
-      scripts/workflows/libaio_jobfile.fio
+      --output=scripts/perf/popper/results/libaio_write.json \
+      scripts/perf/popper/libaio_jobfile.fio
 
 - id: run-mix-benchmark
   uses: docker://spdk
@@ -70,15 +70,15 @@ steps:
     LD_PRELOAD=/root/spdk/examples/bdev/fio_plugin/fio_plugin \
     fio \
       --output-format=json \
-      --output=scripts/workflows/results/libaio_mix.json \
-      scripts/workflows/spdk_jobfile.fio
+      --output=scripts/perf/popper/results/bdev_mix.json \
+      scripts/perf/popper/spdk_jobfile.fio
     fio \
       --output-format=json \
-      --output=scripts/workflows/results/libaio_mix.json \
-      scripts/workflows/libaio_jobfile.fio
+      --output=scripts/perf/popper/results/libaio_mix.json \
+      scripts/perf/popper/libaio_jobfile.fio
 
 - id: plot-results
   uses: docker://jupyter/scipy-notebook:04f7f60d34a6
-  dir: /workspace/scripts/workflows/results
+  dir: /workspace/scripts/perf/popper/results
   runs: [python3]
   args: [results.py]

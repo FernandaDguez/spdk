@@ -1,6 +1,6 @@
 [global]
 ioengine=spdk_bdev
-spdk_json_conf=/workspace/scripts/workflows/bdev.json
+spdk_json_conf=/workspace/scripts/perf/popper/bdev.json
 thread=1
 group_reporting=1
 direct=1
