@@ -5,6 +5,12 @@ More details about Popper can be found [here](https://popper.readthedocs.io/).
 
 This folder contains a Popper workflow defined in the `bdev-vs-libaio.yml` file that automatically run benchmarks for a NVMe device with two different I/O engines: Linux-native asynchronous I/O access library (libaio) engine against the [SPDK block device layer](https://spdk.io/doc/bdev.html) through the [fio](https://fio.readthedocs.io/en/latest/fio_doc.html) tool, similarly to the tests presented in the [SPDK NVMe BDEV Performance Report Release 18.04](https://ci.spdk.io/download/performance-reports/SPDK_nvme_bdev_perf_report_18.04.pdf), and plots the results.
 
+This is an example of one of the charts generated, is the result in IOPS for running the 100% random read workload in a SK hynix SE3010:
+
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/33427387/86827162-8338c180-c046-11ea-80c8-e5772bbe5500.png">
+</p>
+
 These benchmarks tests each engine performance for accessing a device with NMVe protocol and measures the IOPS (Input/Output operations per second) under three different operation workloads: 
 - 100% Random read workload
 - 100% Random write workload
